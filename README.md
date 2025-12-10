@@ -10,6 +10,13 @@ Five primitives
 
 Zero dependencies
 
+/type      → @type
+/entity    → name
+/url       → url
+/canonical → identifier
+/sitemap   → hasPart
+
+
 This is the simplest possible semantic grounding layer for AI, search engines, and autonomous agents.
 
 Status: Experimental protocol for AI grounding & deterministic semantic canonicalization.
