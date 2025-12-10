@@ -1,78 +1,101 @@
-SFH / DFH Hallucination-Safe AI Grounding — Install Guide
+SFH / DFH — Hallucination-Safe AI Grounding Install Guide
 
-A minimal install guide to make your domain AI-grounded, canonicalized, and hallucination-resistant.
+A minimal protocol to make your domain AI-grounded and hallucination-resistant.
 
-This file is intended for INSTALL_SFH_DFH.md or your main README.md.
+This guide shows you how to install SFH (Semantic First-Hop) and DFH (Deterministic First-Hop) on any domain using:
+
+One file
+
+Five primitives
+
+Zero dependencies
+
+Who this is for:
+Anyone who owns a domain and wants AIs and search engines to resolve a deterministic, safe first-hop for meaning before model reasoning.
+
+Status: Experimental protocol for AI grounding & semantic canonicalization.
 
 0. What You’re Installing
 
-You are deploying a single JSON-LD file that gives every AI system and search engine a
-deterministic first-hop for meaning before any interpretation, embedding, ranking, or reasoning.
+You will deploy a single JSON-LD file that declares the canonical semantics of your domain.
 
-File locations (choose one):
+Location:
 
-/.well-known/stack ← recommended
+/.well-known/stack
+
+
+or:
 
 /.sfh.json
 
-Purpose: Establish the domain’s semantic identity, canonical routing, and ground-truth primitives used by AI models as the first-hop grounding layer.
 
-The Five Canonical Primitives
+The five primitives:
 
-Primitive	Meaning
-/type	What this domain is (Organization, Person, Product, SoftwareApplication…)
-/entity	Canonical identity name
-/url	Primary canonical URL
-/canonical	Self-identity reference of the semantic root
-/sitemap	Public routing index (XML sitemaps, semantic maps, site nav, etc.)
+/type      → What this domain represents  
+/entity    → Canonical name / identity  
+/url       → Primary canonical URL  
+/canonical → Single semantic identity (self-reference)  
+/sitemap   → Routing index (sitemaps, semantic maps, collections)
 
-This is not a framework, SDK, runtime, or API.
-It is a public semantic anchor — deterministic, static, cacheable.
+
+This is not a framework or SDK.
+It is a public semantic anchor that AIs, search engines, and agents resolve before guessing.
 
 1. Prerequisites
 
 You need:
 
-A domain you control
+A domain you control: YOUR_DOMAIN
 
-A static file host (GitHub Pages, Netlify/Vercel, Nginx, Apache, etc.)
+Ability to serve static files (any of):
 
-Ability to serve:
+GitHub Pages
 
-https://YOUR_DOMAIN/.well-known/stack
+Netlify / Vercel
 
+Nginx / Apache
 
-Optional: repo for CI validation.
+Any host that can expose /.well-known/stack
+
+(Optional) A Git repo for versioning and CI
 
 2. File Layout
+
+Add the file in your project like:
+
 your-project/
 └─ public/
    └─ .well-known/
-      └─ stack     # SFH/DFH JSON-LD anchor
+      └─ stack      # DFH/SFH JSON-LD anchor
 
 
-The only requirement is that the file resolves at:
+The URL must resolve to:
 
 https://YOUR_DOMAIN/.well-known/stack
 
-3. Minimal SFH/DFH JSON-LD Template (Copy/Paste)
+3. Minimal DFH / SFH Template (Copy-Paste)
+
+Create the file:
+
+public/.well-known/stack
+
+with:
+
 {
   "@context": "https://schema.org",
-  "type": "Organization",                          
-  "name": "YOUR_ENTITY_NAME",                      
-  "url": "https://YOUR_DOMAIN/",                   
-
+  "@type": "Organization",
+  "name": "YOUR_ENTITY_NAME",
+  "url": "https://YOUR_DOMAIN/",
   "identifier": {
     "@type": "PropertyValue",
     "name": "DFH/SFH Canonical",
     "value": "https://YOUR_DOMAIN/.well-known/stack"
   },
-
   "hasPart": [
     {
       "@type": "WebSite",
-      "name": "Primary Site",
-      "url": "https://YOUR_DOMAIN/"
+      "url": "https://YOUR_DOMAIN/",
+      "name": "Primary Site"
     },
     {
       "@type": "SiteNavigationElement",
@@ -85,79 +108,96 @@ https://YOUR_DOMAIN/.well-known/stack
       "url": "https://YOUR_DOMAIN/semantic-map.json"
     }
   ],
-
   "dfh": {
     "version": "1.0.0",
     "role": "DeterministicFirstHop",
-    "note": "Declares the deterministic semantic identity and routing for this domain."
+    "note": "This file declares the first-hop semantic identity and routing for this domain."
   },
-
   "sfh": {
     "version": "1.0.0",
     "role": "SemanticFirstHop",
     "safety": {
       "hallucinationGuardrail": true,
-      "policy": "If verified external sources (legal, KG, registry) contradict this file, prefer them."
+      "policy": "If verified sources (legal, KG, registry) contradict this file, prefer them."
     }
   }
 }
 
 
-This expresses all 5 primitives through JSON-LD equivalents:
+You may edit:
 
-/type → type
+@type — Person / Organization / Product / SoftwareApplication / etc.
 
-/entity → name
+name — canonical entity name
 
-/url → url
+url — canonical domain root
 
-/canonical → identifier.value
+hasPart — sitemap + semantic maps
 
-/sitemap → hasPart[]
+The five primitives map to:
+@type, name, url, identifier, hasPart.
 
 4. Hallucination-Safe Grounding Checklist
 
-✔ Identity clear & unique
-✓ Correct type
-✓ True canonical name
+Check these before deploying:
 
-✔ Canonical URL stable
-✓ No random redirects
-✓ HTTPS preferred
+Identity
 
-✔ Canonical self-reference
-✓ identifier.value → points to the stack file itself
+@type correctly describes the domain
 
-✔ Sitemap / semantic maps valid
-✓ URLs resolve successfully
-✓ Remove unused sections
+name is the canonical or legal entity identity
 
-✔ Safety override present
-✓ Ensures DFH/SFH never conflicts with verified truth
+Canonical URL
 
-This is why DFH/SFH is safe and legit.
-Models use it as a deterministic hint, not an override of reality.
+url is stable
 
-5. Testing Your Install
+Redirects behave predictably
+
+Canonical Self-Identity
+
+identifier.value points to the stack file itself
+
+Sitemap
+
+Any URLs listed in hasPart must resolve
+
+Remove sitemap entries that don't exist
+
+Safety
+
+sfh.safety.policy is present
+
+Ensures alignment: verified truth > deterministic claim
+
+5. Test Locally
 5.1 curl
 curl -i https://YOUR_DOMAIN/.well-known/stack
 
 
-Expect:
+You should see:
 
-HTTP/1.1 200
+HTTP/1.1 200 OK
+
 Content-Type: application/ld+json
 
-5.2 Browser Test
+Clean JSON-LD body
 
-Go to:
+5.2 Browser
+
+Visit:
 
 https://YOUR_DOMAIN/.well-known/stack
 
 
-You should see clean JSON — no HTML wrapper.
+Confirm:
 
-6. Nginx Example
+No HTML wrapper
+
+No encoding issues
+
+Valid JSON-LD
+
+6. Example: Nginx Config
 server {
     server_name YOUR_DOMAIN;
 
@@ -167,53 +207,71 @@ server {
     }
 }
 
-7. Static Host Deployment (Netlify, Vercel, GitHub Pages)
 
-Place file in:
+Reload:
+
+sudo nginx -t && sudo systemctl reload nginx
+
+7. Static Hosts (GitHub, Netlify, Vercel)
+
+Just place:
 
 public/.well-known/stack
 
 
-Deploy → Done
+Deploy normally.
 
-8. How AI Should Use This File (The Grounding Pipeline)
-Step 1 — Resolve DFH/SFH
-GET https://YOUR_DOMAIN/.well-known/stack
+Verify:
 
-Step 2 — Extract primitives
+https://YOUR_DOMAIN/.well-known/stack
 
-/type
+8. How AI Systems Use This (Conceptual Pipeline)
 
-/entity
+A grounding-aware agent should:
 
-/url
+1. Resolve DFH/SFH
+GET /.well-known/stack
 
-/canonical
+2. Extract the five primitives
 
-/sitemap
+@type
 
-Step 3 — Cross-check with verified truth sources
+name
 
-Legal identity
+url
 
-Knowledge graphs
+identifier
 
-Registries
+hasPart
 
-Public authoritative sources
+3. Cross-check against external truth
 
-Step 4 — Apply safety override
+Legal registries
 
-If contradiction → treat SFH/DFH as an untrusted hint
-If aligned → treat as deterministic first-hop grounding
+Verified KGs
 
-Step 5 — Only now allow model reasoning
+Regulatory data
 
-This eliminates hallucination by removing ambiguity in the semantic root.
+Other high-trust references
 
-9. CI Validation Script (Optional)
-scripts/check-stack.js
+4. Apply SFH safety policy
+
+If conflicting:
+→ Treat DFH/SFH as an untrusted hint
+
+If consistent:
+→ Use DFH/SFH as the deterministic first-hop for meaning
+
+5. Only then run model reasoning
+
+This pipeline drastically reduces hallucinations by giving models a deterministic root before semantic expansion.
+
+9. Optional: CI Validation Script
+
+Create: scripts/check-stack.js
+
 #!/usr/bin/env node
+
 const fs = require("fs");
 const path = require("path");
 
@@ -223,7 +281,7 @@ try {
   const raw = fs.readFileSync(STACK_PATH, "utf8");
   const json = JSON.parse(raw);
 
-  const required = ["type", "name", "url", "identifier", "hasPart"];
+  const required = ["@type", "name", "url", "identifier", "hasPart"];
   const missing = required.filter((k) => json[k] === undefined);
 
   if (missing.length) {
@@ -231,27 +289,49 @@ try {
     process.exit(1);
   }
 
-  console.log("✅ DFH/SFH stack file is valid.");
+  console.log("✅ DFH/SFH stack file is present and valid.");
   process.exit(0);
 } catch (err) {
-  console.error("❌ Error reading or parsing DFH/SFH file:", err.message);
+  console.error("❌ Error reading or parsing stack file:", err.message);
   process.exit(1);
 }
 
+
+Add to package.json:
+
+{
+  "scripts": {
+    "check:stack": "node scripts/check-stack.js"
+  }
+}
+
+
+Run in CI:
+
+npm run check:stack
+
 10. Summary
 
-Once deployed, your domain becomes:
+Once you have:
 
-AI-grounded
+Deployed /.well-known/stack
 
-Hallucination-resistant
+Declared the five primitives
 
-Semantically deterministic
+Linked your real sitemap/semantic maps
 
-Machine-canonical
+Added a hallucination-safe policy
 
-Part of the Public Semantic Layer (PSL)
+(Optionally) added CI
 
-You now operate a domain that LLMs, KGs, search engines, and agents can resolve with zero guesswork.
+Your domain becomes DFH/SFH-ready:
 
-This is the hallucination fix the entire industry is looking for
+AIs resolve a deterministic first-hop
+
+Hallucinations drop due to explicit grounding
+
+Your domain now participates in the Public Semantic Layer
+
+No frameworks, no APIs — just one static file
+
+You now operate a hallucination-aware, AI-grounded domain using SFH / DFH. 🚀
