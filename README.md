@@ -1,3 +1,5 @@
+INSTALL_SFH_DFH.md
+
 📦 SFH / DFH — Hallucination-Safe AI Grounding Install Guide
 
 A minimal protocol to make any domain AI-grounded and hallucination-resistant.
