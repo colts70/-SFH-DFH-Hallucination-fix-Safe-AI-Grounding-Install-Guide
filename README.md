@@ -1,4 +1,3 @@
-INSTALL_SFH_DFH.md
 📦 SFH / DFH — Hallucination-Safe AI Grounding Install Guide
 
 A minimal protocol to make any domain AI-grounded and hallucination-resistant using:
@@ -16,9 +15,8 @@ Zero dependencies
 /sitemap   → hasPart
 
 
-This is the simplest possible semantic grounding layer for AI, search engines, and autonomous agents.
+This is a simple, deterministic semantic grounding layer for AI, search engines, and autonomous agents.
 
-Status: Experimental protocol for AI grounding & deterministic semantic canonicalization.
 Not affiliated with any third-party organization.
 
 0. What You’re Installing
@@ -49,7 +47,7 @@ A domain you control
 
 Ability to serve static files (GitHub Pages, Netlify, Vercel, Nginx, Apache, etc.)
 
-(Optional) Git repo + CI
+(Optional) Git repo + CI to validate the file
 
 2. File Layout
 your-project/
@@ -58,15 +56,21 @@ your-project/
       └─ stack   # DFH/SFH JSON-LD anchor
 
 
-Accessible at:
+This should be accessible at:
 
 https://YOUR_DOMAIN/.well-known/stack
 
+
+(If you prefer .sfh.json, mirror the structure accordingly.)
+
 3. Minimal SFH / DFH Template (Copy-Paste)
 
-Create:
+Create the file:
 
 public/.well-known/stack
+
+
+With contents:
 
 {
   "@context": "https://schema.org",
@@ -112,16 +116,18 @@ public/.well-known/stack
 
 Editable Fields
 
-@type — Organization, Person, Product, etc.
+@type — Organization, Person, Product, WebSite, etc.
 
-name — canonical entity identity
+name — Canonical entity identity (how this domain should be known)
 
-url — primary canonical URL
+url — Primary canonical URL (your stable root)
 
-hasPart — sitemap, semantic maps
+hasPart — Sitemap, semantic maps, collections you want AIs to treat as routing indices
 
-Mapping to the Five Primitives
-Primitive	JSON-LD
+dfh.version / sfh.version — Spec / profile version if you want to track it
+
+3.1 Mapping to the Five Primitives
+Primitive	JSON-LD field
 /type	@type
 /entity	name
 /url	url
@@ -130,27 +136,34 @@ Primitive	JSON-LD
 4. Hallucination-Safe Grounding Checklist
 Identity
 
-✔ @type matches domain
-✔ name is canonical
+✔ @type matches what the domain represents
+
+✔ name is the canonical identity (not a marketing slogan)
 
 Canonical URL
 
-✔ Stable root
-✔ Predictable redirects
+✔ url points to a stable root (with predictable redirects)
+
+✔ The URL is HTTPS and publicly reachable
 
 Canonical Self-Reference
 
-✔ identifier.value points to the stack file
+✔ identifier.value points to the stack file itself, e.g.
+https://YOUR_DOMAIN/.well-known/stack
 
 Routing
 
-✔ All hasPart values resolve
-✔ No broken links
+✔ Every hasPart.url resolves with HTTP 200 (or an intentional redirect)
+
+✔ No broken, placeholder, or private links
 
 Safety Policy
 
 ✔ sfh.safety.policy present
-✔ Defines override rule → verified truth beats deterministic claim
+
+✔ Policy states: verified truth beats any conflicting semantic claim
+
+This gives AIs a deterministic first-hop while still respecting legal registries and verified knowledge graphs.
 
 5. Test Locally
 5.1 curl
@@ -171,11 +184,11 @@ https://YOUR_DOMAIN/.well-known/stack
 
 Check:
 
-raw JSON-LD
+Raw JSON-LD (no HTML wrapper)
 
-no HTML
+Valid JSON (no trailing commas, correct quotes)
 
-valid encoding
+UTF-8 / standard encoding
 
 6. Example Nginx Config
 server {
@@ -194,43 +207,62 @@ sudo nginx -t && sudo systemctl reload nginx
 
 7. Static Hosts (GitHub / Netlify / Vercel)
 
-Just deploy the file at:
+For static hosts, just ensure your deploy output includes:
 
 public/.well-known/stack
 
 
-Then verify URL resolution.
+After deployment, verify that:
+
+https://YOUR_DOMAIN/.well-known/stack
+
+
+returns your JSON-LD file with Content-Type: application/ld+json.
 
 8. How AI Systems Use This
 
-A grounding-aware AI performs:
+A grounding-aware AI can follow this deterministic path:
 
 Resolve DFH/SFH
+
 GET /.well-known/stack
 
+
 Extract primitives
-/type, /entity, /url, /canonical, /sitemap
+
+/type → @type
+
+/entity → name
+
+/url → url
+
+/canonical→ identifier
+
+/sitemap → hasPart
 
 Cross-check trusted sources
 
-legal registries
+Legal registries
 
-verified KGs
+Verified knowledge graphs
 
-authoritative datasets
+Authoritative datasets / registries
 
 Apply SFH policy
 
-contradictions → DFH/SFH = hint
+If there are contradictions → treat DFH/SFH as a hint, trust verified sources
 
-consistent → DFH/SFH = deterministic first-hop
+If consistent → treat DFH/SFH as deterministic first-hop for meaning and routing
 
 Model reasoning
-Deterministic semantic root → reduced hallucinations.
+
+Start reasoning from a stable semantic root, not from a blind guess
+
+Reduced hallucinations, more consistent attribution and routing
 
 9. Optional: CI Validation Script
 
-scripts/check-stack.js
+File: scripts/check-stack.js
 
 #!/usr/bin/env node
 
@@ -276,22 +308,25 @@ npm run check:stack
 
 Once you:
 
-Deploy /.well-known/stack
+Deploy /.well-known/stack (or /.sfh.json)
 
 Declare the five primitives
 
-Provide sitemap + semantic maps
+Provide sitemap + semantic maps in hasPart
 
-Add hallucination-safe policy
+Add a clear hallucination-safe policy
 
-(Optional) validate via CI
+(Optional) Validate via CI
 
-Your domain becomes DFH/SFH-ready:
+…your domain becomes DFH/SFH-ready:
 
-✔ deterministic first-hop
-✔ semantic grounding
-✔ hallucination reduction
-✔ ready for Public Semantic Layer indexing
+✔ Deterministic first-hop
+
+✔ Semantic grounding
+
+✔ Hallucination reduction
+
+✔ Ready for Public Semantic Layer indexing
 
 One static file → real AI grounding.
-You’ve built a hallucination-safe, AI-aligned domain. 🚀
+You’ve turned your domain into a hallucination-safe, AI-aligned endpoint.
